@@ -39,9 +39,8 @@
     <%= render(:partial => "teaching_records/teaching_record",
                :object => @family.teaching_record,
                :locals => {:events => @family.events}) %>
-               <%= render(:partial => "events/family_events", :locals => {:names => @names}) %>
+    <%= render(:partial => "events/family_events", :locals => {:names => @names}) %>
     <div id="updated-action-list">
-      <%= render(:partial => "action_items/family_action_items",
-                 :locals => {:option_for_more => true}) %>
+      <%= render(:partial => "action_items/family_action_items", :locals => {:option_for_more => true}) %>
     </div>
 </ul>

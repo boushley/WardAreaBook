@@ -25,6 +25,11 @@ class Family < ActiveRecord::Base
     end
   end
 
+  def servedBy?(person_id)
+    return true if hasHomeTeacher(person_id) or hasVisitingTeacher(person_id)
+    return false
+  end
+
   def hasHomeTeacher(person_id)
     self.teaching_routes.each do |route|
       return true if route.person_id == person_id 

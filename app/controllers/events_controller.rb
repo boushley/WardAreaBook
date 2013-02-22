@@ -8,21 +8,21 @@ class EventsController < ApplicationController
   # GET /events
   # GET /events.xml
   def index
-    if hasAccess(3)
-      @events = Event.all
+    return deny_access unless hasAccess(3)
 
-      respond_to do |format|
-        format.html # index.html.erb
-        format.xml  { render :xml => @events }
-      end
-    else
-      deny_access
+    @events = Event.find(:all, :order => "date DESC")
+
+    respond_to do |format|
+      format.html # index.html.erb
+      format.xml  { render :xml => @events }
     end
   end
 
   # GET /events/1
   # GET /events/1.xml
   def show
+    return deny_access unless hasAccess(2)
+
     @event = Event.find(params[:id])
 
     respond_to do |format|
@@ -34,6 +34,8 @@ class EventsController < ApplicationController
   # GET /events/new
   # GET /events/new.xml
   def new
+    return deny_access unless hasAccess(2)
+
     @event = Event.new
 
     respond_to do |format|
@@ -44,6 +46,8 @@ class EventsController < ApplicationController
 
   # GET /events/1/edit
   def edit
+    return deny_access unless hasAccess(2)
+
     @event = Event.find(params[:id])
     render :layout => 'WardAreaBook'
   end
@@ -53,6 +57,8 @@ class EventsController < ApplicationController
   def create_new_family_event
     @event = Event.new(params[:event])
     @event.author = session[:user_id]
+
+    return deny_access unless hasAccess(2) || @event.family.servedBy?(session[:user_id])
 
     respond_to do |format|
       if @event.save
@@ -80,6 +86,7 @@ class EventsController < ApplicationController
   # POST /events
   # POST /events.xml
   def create
+    return deny_access unless hasAccess(2)
     @event = Event.new(params[:event])
     @event.author = session[:user_id]
 
@@ -120,6 +127,9 @@ class EventsController < ApplicationController
   def destroy
     #flash[:notice] = 'Event successfully deleted.'
     @event = Event.find(params[:id])
+
+    return deny_access unless hasAccess(2) || @event.family.servedBy?(session[:user_id])
+
     @event.destroy
 
     respond_to do |format|

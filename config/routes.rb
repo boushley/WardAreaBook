@@ -85,11 +85,12 @@ WardAreaBook::Application.routes.draw do
   match '/WardListUpdates' => 'people#WardListUpdates'
   resources :people
 
+  resources :events
+
   get '/reports/monthlyReport' => 'reports#monthlyReport'
   get '/reports/was_visited/:category/:year/:month/' => 'reports#was_family_visited'
 
   # Haven't gotten to yet
-  resources :events
   resources :password_resets
   resources :roster
   match 'login' => 'user_sessions#new', :as => :login

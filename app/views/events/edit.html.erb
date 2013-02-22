@@ -13,12 +13,11 @@
   </p>
   <p>
     <%= f.label :category %><br />
-    <%= f.select :category, teachingRecordEvents + memberMilestones %>
+    <%= f.select :category, teachingRecordEvents + memberMilestones + eventCategories %>
   </p>
   <p>
     <%= f.label :person_id %><br />
-    <%= f.select :person_id, Person.selectionList,
-                 :prompt => "Select Visiting Member" %>
+    <%= f.select :person_id, Person.selectionList, :prompt => "Select Visiting Member" %>
     
   </p>
   <p>
