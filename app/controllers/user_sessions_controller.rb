@@ -19,7 +19,7 @@ class UserSessionsController < ApplicationController
 
   def destroy  
     @user_session = UserSession.find  
-    if defined?(@user_session)
+    if @user_session
       @user_session.user.logged_in_now = false
       @user_session.destroy  
     end
