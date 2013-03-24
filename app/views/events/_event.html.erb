@@ -31,7 +31,7 @@ end
         <%= f.label :date %><br />
         <%= f.date_select :date %>
         <%= label_tag "Visiting Person" %>
-        <%= f.select :person_id, options_for_select(names, event.person.id) %> <br />
+        <%= f.select :person_id, options_for_select(names, event.person_id) %> <br />
       </p>
       <p>
       <% if event.family.teaching_record != nil %>
