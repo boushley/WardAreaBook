@@ -140,7 +140,7 @@ ActiveRecord::Schema.define(:version => 20130106202554) do
     t.integer "family_id"
     t.integer "person_id"
     t.string  "category"
-    t.date    "last_update", :default => '2013-01-20'
+    t.date    "last_update", :default => '2013-03-23'
   end
 
   create_table "users", :force => true do |t|
@@ -165,8 +165,8 @@ ActiveRecord::Schema.define(:version => 20130106202554) do
   create_table "visiting_teaching_routes", :force => true do |t|
     t.integer  "visiting_teacher_id"
     t.integer  "person_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
   end
 
   create_table "ward_profiles", :force => true do |t|

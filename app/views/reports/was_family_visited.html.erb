@@ -1,0 +1,33 @@
+<h1>Showing <%= @category %> visits for <%= @start_date.strftime "%B %Y" %> </h1>
+
+<p>
+  <h4>Choose Category</h4>
+  <% @categories.each do |c| %>
+    <a href="/reports/was_visited/<%= c %>/<%= @start_date.year %>/<%= @start_date.month %>"><%= c %></a>
+  <% end %>
+</p>
+
+<p>
+  <h4>Choose Month</h4>
+  <% last_month = @start_date - 1.day %>
+  <a href="/reports/was_visited/<%= @category %>/<%= last_month.year %>/<%= last_month.month %>">Last Month</a><br />
+
+  <%= select_month(@start_date, {}, id: 'was-visited-report-month-select') %>
+  <%= select_year(@start_date, {}, id: 'was-visited-report-year-select') %>
+  <%= button_to_function "Go To Month", "go_to_was_family_visited('#{@category}')" %>
+</p>
+
+<table>
+  <thead>
+    <th>Family</th>
+    <th>Was Visited</th>
+  </thead>
+  <tbody>
+    <% @was_visited.each do |was_visited| %>
+      <tr>
+        <td><%= was_visited[:family].full_name %></td>
+        <td><%= was_visited[:visited] ? 'yes' : 'no' %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

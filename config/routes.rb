@@ -56,6 +56,7 @@ WardAreaBook::Application.routes.draw do
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id))(.:format)'
 
+  match '/' => 'families#index'
   match '/faq' => 'static_pages#faq'
 
   match '/action_items/wardActionItems/' => 'action_items#wardActionItems'
@@ -84,6 +85,9 @@ WardAreaBook::Application.routes.draw do
   match '/WardListUpdates' => 'people#WardListUpdates'
   resources :people
 
+  get '/reports/monthlyReport' => 'reports#monthlyReport'
+  get '/reports/was_visited/:category/:year/:month/' => 'reports#was_family_visited'
+
   # Haven't gotten to yet
   resources :events
   resources :password_resets
@@ -99,7 +103,8 @@ WardAreaBook::Application.routes.draw do
   match '/families/edit_status/:id' => 'families#edit_status'
   match '/activate/:id' => 'password_resets#activate', :as => :activation
   resources :families
-  match '/' => 'families#index'
+
+  # We should get rid of this thing...
   match '/:controller(/:action(/:id))'
 
   # Unsure what is used but look safe

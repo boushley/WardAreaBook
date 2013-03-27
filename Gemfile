@@ -20,6 +20,8 @@ gem 'fog'
 gem 'libv8', '~> 3.11.8.11', :platform => :ruby
 gem 'therubyracer', '~> 0.11.2'
 
+gem 'remote_syslog'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

@@ -23,3 +23,5 @@ config/application.yml
 .idea
 
 script/set_passwords
+
+.ruby-version

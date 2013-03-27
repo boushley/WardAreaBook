@@ -46,6 +46,8 @@
       <br> 
       <%= link_to 'Reports', :controller => 'reports', :action => 'monthlyReport' %><br />
       &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Month', :controller => 'reports', :action => 'monthlyReport' %><br />
+      <% now = Date.current %>
+      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Was Visited', "/reports/was_visited/Home%20Teaching/#{now.year}/#{now.month}" %><br />
       <br>
       <%= link_to 'Stats', :controller => 'stats' %><br />
 <% end %>

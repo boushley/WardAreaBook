@@ -52,6 +52,23 @@ class ReportsController < ApplicationController
     monthly_info
   end
 
+  def was_family_visited
+    category = params[:category]
+    year = params[:year].to_i
+    month = params[:month].to_i
+
+    @start_date = Date.new(year, month, 1)
+    end_date = Date.new(year, month, -1)
+
+    @category = category
+    @categories = ["Home Teaching", "Visiting Teaching"]
+
+    @was_visited = Family.find_all_by_member_and_current(true,true, :order => :name).collect do |family|
+      size = Event.where("category = ? and date > ? and date < ? and family_id = ?", category, @start_date, end_date, family.id).size
+      {family: family, visited: size > 0}
+    end
+  end
+
   private
 
   def categorizeVisits(family_events)
