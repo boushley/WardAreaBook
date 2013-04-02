@@ -90,9 +90,9 @@ WardAreaBook::Application.routes.draw do
   get '/reports/monthlyReport' => 'reports#monthlyReport'
   get '/reports/was_visited/:category/:year/:month/' => 'reports#was_family_visited'
 
-  # Haven't gotten to yet
   resources :password_resets
-  resources :roster
+
+  # Haven't gotten to yet
   match 'login' => 'user_sessions#new', :as => :login
   match 'logout' => 'user_sessions#destroy', :as => :logout
   resources :user_sessions
