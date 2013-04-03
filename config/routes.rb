@@ -93,17 +93,19 @@ WardAreaBook::Application.routes.draw do
   resources :password_resets
 
   # Haven't gotten to yet
+  resources :user_sessions
+  resources :families
+
   match 'login' => 'user_sessions#new', :as => :login
   match 'logout' => 'user_sessions#destroy', :as => :logout
-  resources :user_sessions
   match '/families/members/' => 'families#members'
   match '/families/teachingPool/' => 'families#teachingPool'
   match '/families/investigators/' => 'families#investigators'
   match '/families/mergeRecords/' => 'families#mergeRecords'
-  post '/families/:id/new_comment' => 'families#new_comment'
   match '/families/edit_status/:id' => 'families#edit_status'
   match '/activate/:id' => 'password_resets#activate', :as => :activation
-  resources :families
+
+  post '/families/:id/new_comment' => 'families#new_comment'
 
   # We should get rid of this thing...
   match '/:controller(/:action(/:id))'
