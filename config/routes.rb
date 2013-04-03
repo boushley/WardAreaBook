@@ -91,7 +91,10 @@ WardAreaBook::Application.routes.draw do
   get '/reports/was_visited/:category/:year/:month/' => 'reports#was_family_visited'
 
   resources :password_resets
-  resources :user_sessions
+
+  match 'login' => 'user_sessions#new', :as => :login
+  match 'logout' => 'user_sessions#destroy', :as => :logout
+  post '/user_sessions' => 'user_sessions#create'
 
   resources :families
   get '/families/members/' => 'families#members'
@@ -101,11 +104,7 @@ WardAreaBook::Application.routes.draw do
   post '/families/merge_the_record/' => 'families#merge_the_record'
   post '/families/:id/new_comment' => 'families#new_comment'
 
-  # Haven't gotten to yet
-  match 'login' => 'user_sessions#new', :as => :login
-  match 'logout' => 'user_sessions#destroy', :as => :logout
-  match '/activate/:id' => 'password_resets#activate', :as => :activation
-
+  get '/activate/:id' => 'password_resets#activate', :as => :activation
 
   # We should get rid of this thing...
   match '/:controller(/:action(/:id))'
