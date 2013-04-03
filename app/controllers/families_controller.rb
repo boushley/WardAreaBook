@@ -25,7 +25,7 @@ class FamiliesController < ApplicationController
       return true if family.servedBy? session[:user_id]
       deny_access
     elsif action_name == 'index'
-      redirect_to(:action => 'members')
+      redirect_to families_members_path
     else
       deny_access
     end
@@ -46,7 +46,7 @@ class FamiliesController < ApplicationController
   def members
     @families = Family.find_all_by_member_and_current(true,true, :order => :name)
     respond_to do |format|
-      format.html # investigators.html.erb
+      format.html # members.html.erb
       format.xml  { render :xml => @families }
     end
   end
@@ -55,7 +55,6 @@ class FamiliesController < ApplicationController
     @fam = Family.find(params[:id])
     @fam.comments.create(:person_id => session[:user_id], :text => params[:text])
     redirect_to(@fam)
-
   end
 
   def investigators
@@ -87,7 +86,7 @@ class FamiliesController < ApplicationController
     else
       @familyList = Family.find_all_by_member_and_current(true,true)
       respond_to do |format|
-        format.html # investigators.html.erb
+        format.html # mergeRecords.html.erb
         format.xml  { render :xml => @families }
       end
     end
