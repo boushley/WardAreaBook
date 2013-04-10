@@ -5,7 +5,7 @@ module VisitFindingHelper
 
     visitingTeachers = person.visiting_teachers.all
 
-    clause = "(category ='Visit' or category = 'Lesson') and ("
+    clause = "category ='Visiting Teaching' and ("
     clause += visitingTeachers.collect { |vt| 'person_id = ' + vt.id.to_s.to_s }.join(' or ')
     clause += ")"
 
@@ -15,7 +15,7 @@ module VisitFindingHelper
   def getLastHomeTeacherVisit(family)
     return nil if family.teaching_routes.empty?
 
-    clause = "(category = 'Visit' or category = 'Lesson') and ("
+    clause = "category = 'Home Teaching' and ("
     clause += family.teaching_routes.collect { |route| 'person_id = ' + route.person.id.to_s }.join(' or ')
     clause += ")"
 
