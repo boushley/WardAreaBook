@@ -88,18 +88,26 @@ def downLoadNewInfo
   site = "https://signin.lds.org/SSOSignIn/"
   puts "accessing #{site}"
   agent.get(site) do |page|
-    #TODO brittle....
-    form = page.forms.find { |form| form.fields.length > 1 }
+    form = page.forms.find do |f|
+      f.dom_id == "loginForm"
+    end
+
     # TODO What happens when you have multiple wards and admins?
     root = RootAdmin.find(:first)
     form.username = root.lds_user_name
     form.password = root.lds_password 
     page = agent.submit(form)
-    puts "Just logged in"
+
+    # Currently the easiest to detect difference I found was that when you successfully log in
+    # there is a meta refresh tag, and when you fail to log in there is not. If this behavior changes
+    # then this could cause problems
+    successful_log_in = page.meta_refresh.size > 0
+
+    raise 'Login Failed. Unable to proceed with database update.' unless successful_log_in
 
     list_location = "#{UPDATEDIR}WardList.json"
     FileUtils.mv(list_location, list_location + ".old") if File.exists? list_location
-    agent.get("https://lds.org/directory/services/ludrs/mem/member-detaillist/#{WARD_ID}").save_as(list_location)
+    agent.get("https://lds.org/directory/services/ludrs/mem/member-list/#{WARD_ID}").save_as(list_location)
     puts "just retrieved the list"
 
     puts "Getting leadership information"
@@ -225,6 +233,11 @@ begin
   # Extract the data from the cvs file
   # familyname,  phone,   addr1,   addr2,  addr3,   addr4,   name1,   name2,  name3,   name4
   ########################################################################
+
+  # Let's make sure we can read in the wardList.json before we change the database state
+  jsonString = File.open("#{UPDATEDIR}WardList.json", "r").read
+  ward = JSON.parse(jsonString)
+
   # set all records to non current
   Person.update_all(:current => false)
   Family.find_all_by_member(true).each do |family|
@@ -232,8 +245,6 @@ begin
     family.save
   end
 
-  jsonString = File.open("#{UPDATEDIR}WardList.json", "r").read
-  ward = JSON.parse(jsonString)
   ward.each do |jsonEntry|
     uid   = jsonEntry['headOfHouseIndividualId']
     familyEmail = jsonEntry['emailAddress']
@@ -429,8 +440,8 @@ begin
   end
   puts "Finished update at #{Time.now}"
 
-rescue Exception => e
+rescue Exception => ex
   puts "We had a failure. Printing error: "
-  p e
-  p e.backtrace
+  puts ex.backtrace.join("\n")
+  p ex
 end

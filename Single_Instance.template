@@ -201,6 +201,20 @@
                   "owner" : "root",
                   "group" : "root"
               },
+              "/etc/log_fils.yml" : {
+                  "content" : { "Fn::Join" : ["\n", [
+                      "files:",
+                      "  - /var/app/wardareabook/log/production.log",
+                      "  - /var/app/wardareabook/db/updateScripts/WardListImport.log",
+                      "  - /var/log/mysql.log",
+                      "destination:",
+                      "  host: logs.papertrailapp.com",
+                      "  port: #TODO Insert papertrail port"
+                  ]]},
+                  "mode" : "000644",
+                  "owner" : "root",
+                  "group" : "root"
+              },
               "/var/app/wardareabook/config/database.yml" : {
                   "content" : { "Fn::Join" : ["", [
                     "development:\n",

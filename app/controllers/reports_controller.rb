@@ -64,7 +64,7 @@ class ReportsController < ApplicationController
     @categories = ["Home Teaching", "Visiting Teaching"]
 
     @was_visited = Family.find_all_by_member_and_current(true,true, :order => :name).collect do |family|
-      size = Event.where("category = ? and date > ? and date < ? and family_id = ?", category, @start_date, end_date, family.id).size
+      size = Event.where("category = ? and date >= ? and date <= ? and family_id = ?", category, @start_date, end_date, family.id).size
       {family: family, visited: size > 0}
     end
   end
