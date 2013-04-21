@@ -16,6 +16,7 @@ class Family < ActiveRecord::Base
 
   validates_presence_of :name, :head_of_house_hold
 
+  MOVED_STATUS = 'Moved - Old Record'
 
   ALL = self.where("member = ? AND current = ?", true, true).order('name').map do |s|
     begin

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130106202554) do
+ActiveRecord::Schema.define(:version => 20130421180933) do
 
   create_table "action_items", :force => true do |t|
     t.integer  "family_id"
@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(:version => 20130106202554) do
     t.boolean  "current",            :default => true
     t.boolean  "member",             :default => true
     t.string   "uid"
+    t.string   "ward_id"
   end
 
   create_table "home_teaching_files", :force => true do |t|
@@ -109,6 +110,7 @@ ActiveRecord::Schema.define(:version => 20130106202554) do
     t.string   "lds_password"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.string   "ward_id"
   end
 
   create_table "sessions", :force => true do |t|
