@@ -51,6 +51,7 @@ class WardListImporter
     setup_ward_directory
     download_ward_list
     download_leadership_info
+    download_families
 
     process_ward
     parse_callings
@@ -105,12 +106,18 @@ class WardListImporter
     JSON.parse(jsonString)
   end
 
+  def download_families
+    parse_ward.each do |json_entry|
+      download_family_info json_entry['headOfHouseIndividualId']
+    end
+  end
+
   def process_ward
     # set all records to non current
     Family.where(:ward_id => @root_admin.ward_id, :member => true).update_all(:current => false)
 
-    parse_ward.each do |jsonEntry|
-      process_family jsonEntry
+    parse_ward.each do |json_entry|
+      process_family json_entry
     end
 
     # Get all of the non-current families. 
@@ -142,7 +149,7 @@ class WardListImporter
     headOfHouseHold.strip!
     headOfHouseHold.gsub!("&", "and")
 
-    family_info = get_family_info uid
+    family_info = parse_family_info uid
 
     household_info = family_info['householdInfo']
     family_email = household_info['email']
@@ -234,11 +241,11 @@ class WardListImporter
       jsonString = File.open(fullFileName, "r").read
       callings = JSON.parse(jsonString)
 
-      callings['leaders'].each do |jsonEntry|
-        personId = Person.where(:uid => jsonEntry['individualId']).first.id
-        positionId = jsonEntry['positionId']
+      callings['leaders'].each do |json_entry|
+        personId = Person.where(:uid => json_entry['individualId']).first.id
+        positionId = json_entry['positionId']
         cal = Calling.where(:position_id => positionId).first
-        callingName = jsonEntry['callingName']
+        callingName = json_entry['callingName']
 
         puts "Mapping person id: #{personId} to #{callingName}(#{positionId})"
 
@@ -255,9 +262,12 @@ class WardListImporter
     end
   end
 
-  def get_family_info uid
+  def download_family_info uid
     puts "Downloading info for family: #{uid}"
     @agent.get("https://www.lds.org/directory/services/ludrs/mem/householdProfile/#{uid}").save_as("#{ward_location}/#{uid}.json")
+  end
+
+  def parse_family_info uid
     jsonString = File.open("#{ward_location}/#{uid}.json", "r").read
     JSON.parse(jsonString)
   end
