@@ -48,10 +48,12 @@ class WardListImporter
 
   def run
     sign_in
+    setup_ward_directory
     download_ward_list
     download_leadership_info
 
     process_ward
+    parse_callings
   end
 
   private
@@ -65,7 +67,7 @@ class WardListImporter
 
       form.username = @root_admin.lds_user_name
       form.password = @root_admin.lds_password 
-      result_page = agent.submit(form)
+      result_page = @agent.submit(form)
 
       # Currently the easiest to detect difference I found was that when you successfully log in
       # there is a meta refresh tag, and when you fail to log in there is not. If this behavior changes
@@ -83,7 +85,7 @@ class WardListImporter
   end
 
   def download_ward_list
-    @agent.get("https://lds.org/directory/services/ludrs/mem/member-list/#{WARD_ID}").save_as(list_location)
+    @agent.get("https://lds.org/directory/services/ludrs/mem/member-list/#{@root_admin.ward_id}").save_as(list_location)
     puts "Just retrieved the ward list for #{@root_admin.ward_id}"
   end
 
@@ -167,6 +169,7 @@ class WardListImporter
       family_is_new = true
     end
 
+    family.ward_id = @root_admin.ward_id
     family.name = lastName
     family.head_of_house_hold = headOfHouseHold
     family.phone = phone
@@ -188,7 +191,7 @@ class WardListImporter
     # For my report I want a list of those people already removed
     Person.where(:family_id => family.id).update_all(:current => false)
 
-    familyMembers = JsonPerson.get_family_members list_entry family_info
+    familyMembers = JsonPerson.get_family_members(list_entry, family_info)
     familyMembers.each do |fm| 
       puts "\tProcessing person #{fm.uid} -- #{fm.name}"
       person = Person.where(:uid => fm.uid).first
@@ -216,13 +219,13 @@ class WardListImporter
   def parse_callings
     puts "Parsing Calings"
 
-    unless File.directory?(CALLINGS_LOCATION)
-      puts "Missing callings folder #{CALLINGS_LOCATION}, can't parse callings"
+    unless File.directory?(callings_location)
+      puts "Missing callings folder #{callings_location}, can't parse callings"
       return
     end
 
-    Dir.foreach(CALLINGS_LOCATION) do |filename|
-      fullFileName = File.join(CALLINGS_LOCATION, filename)
+    Dir.foreach(callings_location) do |filename|
+      fullFileName = File.join(callings_location, filename)
       puts "Skipping because its a directory: #{fullFileName}" if File.directory?(fullFileName)
       next if File.directory?(fullFileName)
 
@@ -254,20 +257,20 @@ class WardListImporter
 
   def get_family_info uid
     puts "Downloading info for family: #{uid}"
-    @agent.get("https://www.lds.org/directory/services/ludrs/mem/householdProfile/#{uid}").save_as("#{ward_location}#{uid}.json")
-    jsonString = File.open("#{ward_location}#{uid}", "r").read
+    @agent.get("https://www.lds.org/directory/services/ludrs/mem/householdProfile/#{uid}").save_as("#{ward_location}/#{uid}.json")
+    jsonString = File.open("#{ward_location}/#{uid}.json", "r").read
     JSON.parse(jsonString)
   end
 
   def ward_location
-    "#{UPDATEDIR}#{@root_admin.ward_id}/"
+    "#{UPDATEDIR}#{@root_admin.ward_id}"
   end
 
   def callings_location
-    "#{ward_location}callings"
+    "#{ward_location}/callings"
   end
 
   def list_location
-    "#{ward_location}WardList.json"
+    "#{ward_location}/WardList.json"
   end
 end

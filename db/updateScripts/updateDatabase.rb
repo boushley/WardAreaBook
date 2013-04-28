@@ -20,8 +20,6 @@ begin
   updater = WardListImporter.new RootAdmin.first
   updater.run
 
-  parse_callings
-
   puts "Finished update at #{Time.now}"
 rescue Exception => ex
   puts "We had a failure. Printing error: "

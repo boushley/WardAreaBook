@@ -21,8 +21,8 @@ class JsonPerson
   def self.get_family_members(list_entry, details_entry)
     familyMembers = []
     familyMembers << JsonPerson.new(list_entry['headOfHouse'], details_entry['headOfHousehold'])
-    familyMembers << JsonPerson.new(list_entry['spouse'], details_entry['spouse']) if list_entry['spouse']
-
+    familyMembers << JsonPerson.new(list_entry['spouse'], details_entry['spouse']) if list_entry['spouse'] && list_entry['spouse']['individualId'] != -1
+ 
     list_children = list_entry['children']
     detail_others = details_entry['otherHouseholdMembers']
 
@@ -40,10 +40,6 @@ class JsonPerson
 
       d = detail_others[details_index]
       familyMembers << JsonPerson.new(lc, d)
-    end
-
-    children.each do |child|
-      familyMembers << JsonPerson.new(child)
     end
 
     return familyMembers
