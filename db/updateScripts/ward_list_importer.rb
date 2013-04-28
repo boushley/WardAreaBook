@@ -244,6 +244,10 @@ class WardListImporter
       callings['leaders'].each do |json_entry|
         personId = Person.where(:uid => json_entry['individualId']).first.id
         positionId = json_entry['positionId']
+
+        # This positionId is used for many different callings, so it is essentially meaningless
+        next if positionId == 999999
+
         cal = Calling.where(:position_id => positionId).first
         callingName = json_entry['callingName']
 
