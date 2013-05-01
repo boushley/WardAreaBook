@@ -201,7 +201,7 @@
                   "owner" : "root",
                   "group" : "root"
               },
-              "/etc/log_fils.yml" : {
+              "/etc/log_files.yml" : {
                   "content" : { "Fn::Join" : ["\n", [
                       "files:",
                       "  - /var/app/wardareabook/log/production.log",
