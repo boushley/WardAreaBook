@@ -27,3 +27,4 @@ config/application.yml
 script/set_passwords
 
 .ruby-version
+.elasticbeanstalk/
