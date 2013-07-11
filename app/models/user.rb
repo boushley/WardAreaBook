@@ -1,7 +1,7 @@
 require 'digest/sha1'
 
 class User < ActiveRecord::Base
-  belongs_to :person;
+  belongs_to :person
   attr_accessible :email, :password, :password_confirmation
   validate :valid_email
 
