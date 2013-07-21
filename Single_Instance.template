@@ -1,24 +1,24 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  
+
   "Description" : "AWS CloudFormation Template to launch the WardAreaBook",
-  
+
   "Parameters" : {
-      
+
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
       "Type" : "String",
       "Default": "WardPair"
     },    
-    
+
     "InstanceType" : {
       "Description" : "WebServer EC2 instance type",
       "Type" : "String",
-      "Default" : "m1.small",
+      "Default" : "t1.micro",
       "AllowedValues" : [ "t1.micro","m1.small","m1.medium","m1.large","m1.xlarge","m2.xlarge","m2.2xlarge","m2.4xlarge","c1.medium","c1.xlarge","cc1.4xlarge","cc2.8xlarge","cg1.4xlarge"],
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
-          
+
     "DBName": {
       "Default": "wardAreaBook",
       "Description" : "The WardAreaBook database",
@@ -35,7 +35,7 @@
       "MinLength": "1",
       "MaxLength": "36"
     },
-    
+
     "WardAdminPassword": {
       "NoEcho": "true",
       "Description" : "The password for the account to use for syncing with lds.org",
@@ -43,7 +43,22 @@
       "MinLength": "1",
       "MaxLength": "41"
     },
-    
+
+    "DBSnapshotUrl": {
+      "Description" : "The url of the Database backup to restore from",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "255"
+    },
+
+
+    "CertPackUrl": {
+      "Description" : "The url of the ssl cert pack",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "255"
+    },
+
     "DBUsername": {
       "Default": "admin",
       "Description" : "The WardAreaBook database admin account username",
@@ -76,6 +91,27 @@
       "ConstraintDescription" : "must contain only alphanumeric characters."
     },
 
+    "EmailPassword": {
+      "Description" : "The password of the wardareabook gmail account",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "25"
+    },
+
+    "PaperTrailPort": {
+      "Description" : "The port on papertrail to connect to and send logs to",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "8"
+    },
+
+    "BackupBucket": {
+      "Description" : "The bucket to put the backup files into",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "60"
+    },
+
     "BackupAccessKey": {
       "Description" : "The access key for the account to use for backups",
       "Type": "String",
@@ -89,9 +125,9 @@
       "Type": "String",
       "MinLength": "1",
       "MaxLength": "41"
-    }   
+    }
   },
-  
+
   "Mappings" : {
     "AWSInstanceType2Arch" : {
       "t1.micro"    : { "Arch" : "64" },
@@ -113,9 +149,8 @@
       "us-west-2" :      { "32" : "ami-8c109ebc", "64" : "ami-8e109ebe" }
     }
   },
-    
+
   "Resources" : {     
-      
     "CfnUser" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {
@@ -141,7 +176,18 @@
     "WebServer": {  
       "Type": "AWS::EC2::Instance",
       "Metadata" : {
+        "AWS::CloudFormation::Authentication" : {
+          "S3AccessCreds" : {
+            "type" : "S3",
+            "accessKeyId" : { "Ref" : "BackupAccessKey" },
+            "secretKey" : { "Ref" : "BackupSecretKey" },
+            "buckets" : [ { "Ref" : "BackupBucket" } ]
+          }
+        },
         "AWS::CloudFormation::Init" : {
+          "configSets" : {
+            "default": [ "config", "interpolate", "restore-db" ]
+          },
           "config" : {
             "packages" : {
               "apt" : {
@@ -169,7 +215,9 @@
             },
 
             "sources" : {
-              "/var/app/wardareabook" : "https://github.com/boushley/WardAreaBook/zipball/master"
+              "/var/app/wardareabook" : "https://github.com/boushley/WardAreaBook/zipball/master",
+              "/var/app/certs" : {"Ref": "CertPackUrl"},
+              "/var/app/db-snapshot" : {"Ref": "DBSnapshotUrl"}
             },
             "users" : {
                 "wardareabook": {
@@ -202,14 +250,14 @@
                   "group" : "root"
               },
               "/etc/log_files.yml" : {
-                  "content" : { "Fn::Join" : ["\n", [
-                      "files:",
-                      "  - /var/app/wardareabook/log/production.log",
-                      "  - /var/app/wardareabook/db/updateScripts/WardListImport.log",
-                      "  - /var/log/mysql.log",
-                      "destination:",
-                      "  host: logs.papertrailapp.com",
-                      "  port: #TODO Insert papertrail port"
+                  "content" : { "Fn::Join" : ["", [
+                      "files:\n",
+                      "  - /var/app/wardareabook/log/production.log\n",
+                      "  - /var/app/wardareabook/db/updateScripts/WardListImport.log\n",
+                      "  - /var/log/mysql.log\n",
+                      "destination:\n",
+                      "  host: logs.papertrailapp.com\n",
+                      "  port: ", { "Ref" : "DBUsername" } , "\n"
                   ]]},
                   "mode" : "000644",
                   "owner" : "root",
@@ -297,29 +345,28 @@
                       "    s3.access_key_id     = \"", { "Ref" : "BackupAccessKey" } , "\"\n",
                       "    s3.secret_access_key = \"", { "Ref" : "BackupSecretKey" } , "\"\n",
                       "    s3.region            = \"us-west-2\"\n",
-                      "    s3.bucket            = \"ward-area-book\"\n",
+                      "    s3.bucket            = \"", { "Ref" : "BackupBucket" } , "\"\n",
                       "    s3.path              = \"/backups\"\n",
                       "    s3.keep              = 20\n",
                       "  end\n",
                       "\n",
                       "  compress_with Gzip\n",
                       "\n",
-                      "# TODO We need to configure this, just like the other mail\n",
-                      "#notify_by Mail do |mail|\n",
-                      "#  mail.on_success           = false\n",
-                      "#  mail.on_warning           = true\n",
-                      "#  mail.on_failure           = true\n",
-                      "#\n",
-                      "#  mail.from                 = 'sender@email.com'\n",
-                      "#  mail.to                   = 'boushley@gmail.com'\n",
-                      "#  mail.address              = 'smtp.gmail.com'\n",
-                      "#  mail.port                 = 587\n",
-                      "#  mail.domain               = 'your.host.name'\n",
-                      "#  mail.user_name            = 'sender@email.com'\n",
-                      "#  mail.password             = 'my_password'\n",
-                      "#  mail.authentication       = 'plain'\n",
-                      "#  mail.enable_starttls_auto = true\n",
-                      "#end\n",
+                      "notify_by Mail do |mail|\n",
+                      "  mail.on_success           = false\n",
+                      "  mail.on_warning           = true\n",
+                      "  mail.on_failure           = true\n",
+                      "\n",
+                      "  mail.from                 = 'sender@email.com'\n",
+                      "  mail.to                   = 'boushley@gmail.com'\n",
+                      "  mail.address              = 'smtp.gmail.com'\n",
+                      "  mail.port                 = 587\n",
+                      "  mail.domain               = 'thorntoncreekareabook.org'\n",
+                      "  mail.user_name            = 'wardareabookapp'\n",
+                      "  mail.password             = '{|{email-account-password}|}'\n",
+                      "  mail.authentication       = 'plain'\n",
+                      "  mail.enable_starttls_auto = true\n",
+                      "end\n",
                       "\n",
                       "end\n"
                   ]]},
@@ -383,9 +430,9 @@
                         "    include       mime.types;",
                         "    default_type  application/octet-stream;",
                         "",
-                        "    log_format  main  '\$remote_addr - \$remote_user [\$time_local] \\\\\\\"\$request\\\\\\\" '",
-                        "                      '\$status \$body_bytes_sent \\\\\\\"\$http_referer\\\\\\\" '",
-                        "                      '\\\\\\\"\$http_user_agent\\\\\\\" \\\\\\\"\$http_x_forwarded_for\\\\\\\"';",
+                        "    log_format  main  '\\$remote_addr - \\$remote_user [\\$time_local] \\\\\\\"\\$request\\\\\\\" '",
+                        "                      '\\$status \\$body_bytes_sent \\\\\\\"\\$http_referer\\\\\\\" '",
+                        "                      '\\\\\\\"\\$http_user_agent\\\\\\\" \\\\\\\"\\$http_x_forwarded_for\\\\\\\"';",
                         "",
                         "    access_log  logs/access.log  main;",
                         "",
@@ -430,23 +477,8 @@
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
                 },
-                "10-migrate-the-database" : {
-                    "command" : "RAILS_ENV=production bundle exec rake db:migrate",
-                    "cwd" : "/var/app/wardareabook",
-                    "ignoreErrors" : "false"
-                },
-                "11-seed-the-database" : {
-                    "command" : "RAILS_ENV=production bundle exec rake db:seed",
-                    "cwd" : "/var/app/wardareabook",
-                    "ignoreErrors" : "false"
-                },
                 "15-precompile-the-assets" : {
                     "command" : "RAILS_ENV=production bundle exec rake assets:precompile",
-                    "cwd" : "/var/app/wardareabook",
-                    "ignoreErrors" : "false"
-                },
-                "16-update-the-database" : {
-                    "command" : "RAILS_ENV=production bundle exec rake update_ward_db",
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
                 },
@@ -456,9 +488,46 @@
                     "ignoreErrors" : "false"
                 }
             }
+          },
+
+          "interpolate": {
+            "commands" : {
+              "00-interpolate-email-password" : {
+                "command" : {"Fn::Join": ["", ["sed -i 's/{|{email-account-password}|}/", { "Ref" : "EmailPassword" } , "/g' /var/app/wardareabook/config/environments/production.rb"]]},
+                "ignoreErrors" : "false"
+              },
+              "01-interpolate-email-password" : {
+                "command" : {"Fn::Join": ["", ["sed -i 's/{|{email-account-password}|}/", { "Ref" : "EmailPassword" } , "/g' /var/app/wardareabook/Backup/models/app_backup.rb"]]},
+                "ignoreErrors" : "false"
+              }
+            }
+          },
+
+          "restore-db": {
+            "commands" : {
+              "00-gunzip-db-backup": {
+                "command" : "gunzip /var/app/db-snapshot/app_backup/databases/MySQL/wardAreaBook.sql.gz",
+                "ignoreErrors" : "false"
+              },
+              "01-restore-file": {
+                "command" : {"Fn::Join": ["", ["mysql -u ", { "Ref" : "DBUsername" } ," -p", { "Ref" : "DBPassword" } ,"  ", { "Ref" : "DBName" } , " < /var/app/db-snapshot/app_backup/databases/MySQL/wardAreaBook.sql"]]} ,
+                "ignoreErrors" : "false"
+              },
+              "10-migrate-the-database" : {
+                  "command" : "RAILS_ENV=production bundle exec rake db:migrate",
+                  "cwd" : "/var/app/wardareabook",
+                  "ignoreErrors" : "false"
+              },
+              "11-update-the-database" : {
+                  "command" : "RAILS_ENV=production bundle exec rake update_ward_db",
+                  "cwd" : "/var/app/wardareabook",
+                  "ignoreErrors" : "false"
+              }
+            }
           }
         }
       },
+
       "Properties": {
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
