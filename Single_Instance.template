@@ -60,7 +60,6 @@
     },
 
     "DBUsername": {
-      "Default": "admin",
       "Description" : "The WardAreaBook database admin account username",
       "Type": "String",
       "MinLength": "1",
@@ -70,7 +69,6 @@
     },
     
     "DBPassword": {
-      "Default": "abc1234",
       "NoEcho": "true",
       "Description" : "The WardAreaBook database admin account password",
       "Type": "String",
@@ -81,7 +79,6 @@
     },
 
     "DBRootPassword": {
-      "Default": "abc1234",
       "NoEcho": "true",
       "Description" : "Root password for MySQL",
       "Type": "String",
@@ -92,6 +89,7 @@
     },
 
     "EmailPassword": {
+      "NoEcho": "true",
       "Description" : "The password of the wardareabook gmail account",
       "Type": "String",
       "MinLength": "1",
@@ -254,10 +252,12 @@
                       "files:\n",
                       "  - /var/app/wardareabook/log/production.log\n",
                       "  - /var/app/wardareabook/db/updateScripts/WardListImport.log\n",
+                      "  - /opt/nginx/logs/error.log\n",
+                      "  - /opt/nginx/logs/access.log\n",
                       "  - /var/log/mysql.log\n",
                       "destination:\n",
                       "  host: logs.papertrailapp.com\n",
-                      "  port: ", { "Ref" : "DBUsername" } , "\n"
+                      "  port: ", { "Ref" : "PaperTrailPort" } , "\n"
                   ]]},
                   "mode" : "000644",
                   "owner" : "root",
@@ -394,18 +394,22 @@
                   "ignoreErrors" : "false"
                 },
                 "02-install-gems-with-different-ruby" : {
-                    "command" : "sudo gem install passenger bundler",
+                    "command" : "sudo gem install bundler",
                     "ignoreErrors" : "false"
                 },
-                "03-install-specific-fog-version" : {
+                "03-install-gems-with-different-ruby" : {
+                    "command" : "sudo gem install passenger",
+                    "ignoreErrors" : "false"
+                },
+                "08-install-specific-fog-version" : {
                     "command" : "sudo gem install fog -v '~> 1.4.0'",
                     "ignoreErrors" : "false"
                 },
-                "04-install-nginx" : {
+                "09-install-nginx" : {
                     "command" : "passenger-install-nginx-module --auto-download --auto --prefix=/opt/nginx",
                     "ignoreErrors" : "false"
                 },
-                "05-change-nginx-config" : {
+                "10-change-nginx-config" : {
                     "command" : { "Fn::Join" : ["\\n", [
                         "sudo su root -c \"echo -e \\\"",
                         "user  wardareabook;",
@@ -424,15 +428,16 @@
                         "",
                         "",
                         "http {",
-                        "    passenger_root /var/lib/gems/1.9.1/gems/passenger-3.0.19;",
+                        "    server_names_hash_bucket_size 128;",
+                        "`cat /opt/nginx/conf/nginx.conf | grep passenger_root`",
                         "    passenger_ruby /usr/bin/ruby1.9.1;",
                         "",
                         "    include       mime.types;",
                         "    default_type  application/octet-stream;",
                         "",
-                        "    log_format  main  '\\$remote_addr - \\$remote_user [\\$time_local] \\\\\\\"\\$request\\\\\\\" '",
-                        "                      '\\$status \\$body_bytes_sent \\\\\\\"\\$http_referer\\\\\\\" '",
-                        "                      '\\\\\\\"\\$http_user_agent\\\\\\\" \\\\\\\"\\$http_x_forwarded_for\\\\\\\"';",
+                        "    log_format  main  '\\\\\\$remote_addr - \\\\\\$remote_user [\\\\\\$time_local] \\\\\\\"\\\\\\$request\\\\\\\" '",
+                        "                      '\\\\\\$status \\\\\\$body_bytes_sent \\\\\\\"\\\\\\$http_referer\\\\\\\" '",
+                        "                      '\\\\\\\"\\\\\\$http_user_agent\\\\\\\" \\\\\\\"\\\\\\$http_x_forwarded_for\\\\\\\"';",
                         "",
                         "    access_log  logs/access.log  main;",
                         "",
@@ -444,6 +449,13 @@
                         "        listen 80;",
                         "        server_name thorntoncreekareabook.org;",
                         "        rewrite ^ https://$host$request_uri? permanent;",
+                        "    }",
+                        "    server {",
+                        "        listen 80;",
+                        "        server_name `curl http://169.254.169.254/latest/meta-data/public-hostname`;",
+                        "",
+                        "        root /var/app/wardareabook/public;",
+                        "        passenger_enabled on;",
                         "    }",
                         "    server {",
                         "        listen 443;",
@@ -460,29 +472,37 @@
                     ]]},
                     "ignoreErrors" : "false"
                 },
-                "06-startup-nginx" : {
+                "15-startup-nginx" : {
                     "command" : "sudo service nginx restart",
                     "ignoreErrors" : "false"
                 },
-                "07-setup-mysql-user" : {
+                "16-setup-mysql-user" : {
                     "command" : {"Fn::Join" : ["", ["mysql -u root --password='", { "Ref" : "DBRootPassword" }, "' < /tmp/setup.mysql"]]}
                 },
-                "08-install-app-dependencies" : {
+                "17-install-app-dependencies" : {
                     "command" : "bundle install",
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
                 },
-                "09-setup-crontab-with-whenever" : {
+                "18-setup-crontab-with-whenever" : {
                     "command" : "whenever --update-crontab areabookmaintenance",
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
                 },
-                "15-precompile-the-assets" : {
+                "19-precompile-the-assets" : {
                     "command" : "RAILS_ENV=production bundle exec rake assets:precompile",
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
                 },
-                "20-chown-files" : {
+                "20-setup-syslog-to-auto-start" : {
+                  "command" : "sudo cp /var/lib/gems/1.9.1/gems/remote_syslog-*/examples/remote_syslog.init.d /etc/init.d/remote_syslog; sudo update-rc.d remote_syslog defaults",
+                  "ignoreErrors" : "false"
+                },
+                "25-start-syslog" : {
+                  "command" : "sudo remote_syslog",
+                  "ignoreErrors" : "false"
+                },
+                "26-chown-files" : {
                     "command" : "sudo chown -R wardareabook:wardareabook /var/app/wardareabook; sudo chmod 0666 log/production.log",
                     "cwd" : "/var/app/wardareabook",
                     "ignoreErrors" : "false"
@@ -569,7 +589,7 @@
       "DependsOn" : "WebServer",
       "Properties" : {
         "Handle" : {"Ref" : "WaitHandle"},
-        "Timeout" : "2500"
+        "Timeout" : "3600"
       }
     },
     
