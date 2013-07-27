@@ -365,7 +365,7 @@
                       "  mail.user_name            = 'wardareabookapp'\n",
                       "  mail.password             = '{|{email-account-password}|}'\n",
                       "  mail.authentication       = 'plain'\n",
-                      "  mail.enable_starttls_auto = true\n",
+                      "  mail.encryption           = :starttls\n",
                       "end\n",
                       "\n",
                       "end\n"
@@ -510,6 +510,22 @@
                 "26-chown-files" : {
                     "command" : "sudo chown -R wardareabook:wardareabook /var/app/wardareabook; sudo chmod 0666 log/production.log",
                     "cwd" : "/var/app/wardareabook",
+                    "ignoreErrors" : "false"
+                },
+                "27-install-backup-dep" : {
+                    "command" : "sudo backup dependencies --install net-ssh",
+                    "ignoreErrors" : "false"
+                },
+                "28-install-backup-dep" : {
+                    "command" : "sudo backup dependencies --install excon",
+                    "ignoreErrors" : "false"
+                },
+                "29-install-backup-dep" : {
+                    "command" : "sudo backup dependencies --install fog",
+                    "ignoreErrors" : "false"
+                },
+                "30-install-backup-dep" : {
+                    "command" : "sudo backup dependencies --install mail",
                     "ignoreErrors" : "false"
                 }
             }
