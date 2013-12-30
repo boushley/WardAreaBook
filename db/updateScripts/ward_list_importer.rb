@@ -156,7 +156,7 @@ class WardListImporter
     phone = household_info['phone']
 
     address_info = household_info['address']
-    address = address_info['addr1'] + " " + address_info['addr2']
+    address = address_info['addr1'] + " " + address_info['addr2'] unless address_info.nil?
 
     # TODO Not sure if all of these defaults are really necessary
     lastName ||= "" 
