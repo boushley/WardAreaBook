@@ -25,6 +25,22 @@
   <hr>
 </div>
 
+<% if @hasFullAccess %>
+<div>
+  <h3>List Control</h3>
+  <% if @family.tag_list.include? "focus" %>
+    <%= form_tag family_path(@family) + '/remove_tag/focus' do %><input type="submit" value="Remove from Focus"><% end %>
+  <% else %>
+    <%= form_tag family_path(@family) + '/add_tag/focus' do %><input type="submit" value="Add to Focus"><% end %>
+  <% end %>
+  <% if @family.tag_list.include? "new" %>
+    <%= form_tag family_path(@family) + '/remove_tag/new' do %><input type="submit" value="Remove from New or Returning"><% end %>
+  <% else %>
+    <%= form_tag family_path(@family) + '/add_tag/new' do %><input type="submit" value="Add to New or Returning"><% end %>
+  <% end %>
+</div>
+<% end %>
+
 <div id="new-comment" class="startHidden">
   <%= form_tag family_path(@family) + '/new_comment', :class => "noPrint" do %>
     <%= text_area_tag :text, nil, :cols => 60, :rows => 5 %><br />

@@ -12,6 +12,8 @@ class Family < ActiveRecord::Base
                                  :order => 'updated_at DESC'
   has_one :teaching_record
 
+  acts_as_taggable
+
   attr_accessible :status, :name, :head_of_house_hold, :phone, :address, :uid, :current
 
   validates_presence_of :name, :head_of_house_hold

@@ -100,6 +100,9 @@ WardAreaBook::Application.routes.draw do
   match '/families/investigators/' => 'families#investigators'
   match '/families/mergeRecords/' => 'families#mergeRecords'
   post '/families/:id/new_comment' => 'families#new_comment'
+  post '/families/:id/add_tag/:tag' => 'families#add_tag'
+  post '/families/:id/remove_tag/:tag' => 'families#remove_tag'
+  get '/list/:tag' => 'families#tag_families'
   match '/families/edit_status/:id' => 'families#edit_status'
   match '/activate/:id' => 'password_resets#activate', :as => :activation
   resources :families

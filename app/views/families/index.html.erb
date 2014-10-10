@@ -1,4 +1,8 @@
-<h1>Listing families </h1>
+<% if @the_title.nil? %>
+  <h1>Listing families </h1>
+<% else %>
+  <h1><%= @the_title %></h1>
+<% end %>
   <div style = "font:85% sans-serif;" >
     <form>
       Quick Search &mdash;

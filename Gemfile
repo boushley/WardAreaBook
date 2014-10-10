@@ -15,6 +15,7 @@ gem 'whenever'
 gem 'backup'
 gem 'settingslogic'
 gem 'fog'
+gem 'acts-as-taggable-on', '~> 3.4'
 
 # Install a js runtime, so that the plain ubuntu install can run rake
 gem 'libv8', '~> 3.11.8.11', :platform => :ruby

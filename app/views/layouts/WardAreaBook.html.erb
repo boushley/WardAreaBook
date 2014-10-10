@@ -48,6 +48,11 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Month', :controller => 'reports', :action => 'monthlyReport' %><br />
       <% now = Date.current %>
       &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Was Visited', "/reports/was_visited/Home%20Teaching/#{now.year}/#{now.month}" %><br />
+      <br> 
+      Lists<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Focus List', "/list/focus/" %><br />
+      <% now = Date.current %>
+      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'New or Returning', "/list/new/" %><br />
       <br>
       <%= link_to 'Stats', :controller => 'stats' %><br />
 <% end %>

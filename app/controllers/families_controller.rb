@@ -5,6 +5,7 @@ class FamiliesController < ApplicationController
   in_place_edit_for :action_item, :action
 
   @hasFullAccess = false
+  @the_title = nil
 
   # override the application accessLevel method
   # TODO refactor this method
@@ -228,5 +229,35 @@ class FamiliesController < ApplicationController
       format.html { redirect_to(:action => 'investigators') }
       format.xml  { head :ok }
     end
+  end
+
+  TAGS = ['focus', 'new']
+  def tag_families
+    raise "Invalid Tag" unless TAGS.include? params[:tag]
+    @families = Family.tagged_with(params[:tag]).order(:name)
+
+    if params[:tag] == 'focus'
+      @the_title = "Focus List"
+    elsif params[:tag] == 'new'
+      @the_title = "New or Returning Member List"
+    end
+
+    render 'index.html.erb'
+  end
+
+  def add_tag
+    raise "Invalid Tag" unless TAGS.include? params[:tag]
+    @family = Family.find(params[:id])
+    @family.tag_list.add(params[:tag])
+    @family.save
+    redirect_to @family
+  end
+
+  def remove_tag
+    raise "Invalid Tag" unless TAGS.include? params[:tag]
+    @family = Family.find(params[:id])
+    @family.tag_list.remove(params[:tag])
+    @family.save
+    redirect_to @family
   end
 end
