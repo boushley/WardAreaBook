@@ -6,7 +6,9 @@ class JsonPerson
     @email = details_entry['email']
     @phone = details_entry['phone']
     @lastName, @name = @name.split(/,/)
-    @name.strip!
+    unless @name.nil?
+      @name.strip!
+    end
     @email.strip!
     if @email.empty? 
       @email = nil 
