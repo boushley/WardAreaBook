@@ -6,6 +6,7 @@
     <!-- START:stylesheet -->
     <%= stylesheet_link_tag "sortable", :media => "all" %>
     <%= stylesheet_link_tag "areabook", :media => :screen %>
+    <%= stylesheet_link_tag "progress", :media => :screen %>
     <%= stylesheet_link_tag "print", :media => :print %>
     <!-- <label id="code.slt"/> -->
     <%= javascript_include_tag "application"%>
@@ -21,51 +22,62 @@
   </div>
   <div id="columns">
     <div id="side">
-      <br> <br> 
-      <p>
-<% if session[:access_level] >=2 %>
-        <%= link_to 'Ward List', :controller => 'families'  %><br />
-        <%= link_to 'Other Families', :controller => 'families', :action => 'investigators'  %><br />
-        <%= link_to 'Teaching Pool', :controller => 'teaching_records' %><br />
-      </p>
-      <br>
-      <p>
-        <%= link_to 'Home Teaching', :controller => 'teaching_routes' %><br />
-        <%= link_to 'Visiting Teaching', visiting_teaching_path %><br />
- <% else %>      
-        <%= link_to 'Ward List', :controller => 'families', :action => 'members'  %><br />
-<% end %>
-        <%= link_to 'My Families ', :controller => 'teaching_routes', :action => 'teacherList', :id => session[:user_id] %>
+      <ul>
+        <% if session[:access_level] >=2 %>
+          <li><%= link_to 'Ward List', :controller => 'families' %></li>
+          <li><%= link_to 'Other Families', :controller => 'families', :action => 'investigators'  %></li>
+          <li><%= link_to 'Teaching Pool', :controller => 'teaching_records' %></li>
+          <li><%= link_to 'Home Teaching', :controller => 'teaching_routes' %></li>
+          <li><%= link_to 'Visiting Teaching', visiting_teaching_path %></li>
+        <% else %>
+          <li><%= link_to 'Ward List', :controller => 'families', :action => 'members'  %></li>
+        <% end %>
+      </ul>
 
-<% if session[:access_level] >=2 %>
-      </p>
-      <br>
-      <p>
-        <%= link_to 'Assignments', :controller => 'action_items', :action => 'wardActionItems' %><br />
-      </p>
-      <br> 
-      <%= link_to 'Reports', :controller => 'reports', :action => 'monthlyReport' %><br />
-      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Month', :controller => 'reports', :action => 'monthlyReport' %><br />
-      <% now = Date.current %>
-      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Was Visited', "/reports/was_visited/Home%20Teaching/#{now.year}/#{now.month}" %><br />
-      <br> 
-      Lists<br />
-      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'Focus List', "/list/focus/" %><br />
-      <% now = Date.current %>
-      &nbsp;&nbsp;&nbsp;&nbsp;<%= link_to 'New or Returning', "/list/new/" %><br />
-      <br>
-      <%= link_to 'Stats', :controller => 'stats' %><br />
-<% end %>
+      <ul>
+        <li><%= link_to 'My Families ', :controller => 'teaching_routes', :action => 'teacherList', :id => session[:user_id] %></li>
+      </ul>
 
-<% if session[:access_level] >=3 %>
-  <br><br>
-  <%= link_to "Admin", :controller => 'users', :action => 'index' %><br />
-  <br>
-<% end %>
-  <br>
-  <%= link_to "FAQ", faq_path %><br />
-  <br>
-  </div>
+      <% if session[:access_level] >=2 %>
+        <% now = Date.current %>
+        <ul>
+          <li><%= link_to 'Assignments', :controller => 'action_items', :action => 'wardActionItems' %></li>
+        </ul>
+
+        <ul>
+          <li>
+            <%= link_to 'Reports', :controller => 'reports', :action => 'monthlyReport' %>
+            <ul>
+              <li><%= link_to 'Month', :controller => 'reports', :action => 'monthlyReport' %></li>
+              <li><%= link_to 'Was Visited', "/reports/was_visited/Home%20Teaching/#{now.year}/#{now.month}" %></li>
+            </ul>
+          </li>
+        </ul>
+
+        <ul>
+          <li>
+            Lists
+            <ul>
+              <li><%= link_to 'Focus List', "/list/focus/" %></li>
+              <li><%= link_to 'New or Returning', "/list/new/" %></li>
+            </ul>
+          </li>
+        </ul>
+
+        <ul>
+          <li><%= link_to 'Stats', :controller => 'stats' %></li>
+        </ul>
+      <% end %>
+
+      <% if session[:access_level] >=3 %>
+        <ul>
+          <li><%= link_to "Admin", :controller => 'users', :action => 'index' %></li>
+        </ul>
+      <% end %>
+      <ul>
+        <li><%= link_to "FAQ", faq_path %></li>
+      </ul>
+    </div>
     <div id="main">
       <!-- START:flash -->
       <% if flash[:notice] -%>

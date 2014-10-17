@@ -87,6 +87,7 @@ WardAreaBook::Application.routes.draw do
 
   get '/reports/monthlyReport' => 'reports#monthlyReport'
   get '/reports/was_visited/:category/:year/:month/' => 'reports#was_family_visited'
+  get '/reports/progress/:id' => 'reports#progressReport'
 
   # Haven't gotten to yet
   resources :events

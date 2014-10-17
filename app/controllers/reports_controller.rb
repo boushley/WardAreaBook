@@ -69,6 +69,10 @@ class ReportsController < ApplicationController
     end
   end
 
+  def progressReport
+    @family = Family.find(params[:id])
+  end
+
   private
 
   def categorizeVisits(family_events)

@@ -365,6 +365,15 @@ h1 {
   background: #feb;
 }
 
+#side  ul {
+  list-style: none;
+  padding-left: 10px;
+}
+
+#side > ul {
+  padding-left: 5px;
+}
+
 #side a {
   color: #000;
   font-size: medium;
