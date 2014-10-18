@@ -1,0 +1,29 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  worthinessInterview: 2014-10-17
+  priesthoodInterview: 2014-10-17
+  gospelPrinciples: 2014-10-17
+  reteachLessons: 2014-10-17
+  responsibility: 2014-10-17
+  attendingSacrament: 2014-10-17
+  familyGroupSheet: 2014-10-17
+  priesthood: 2014-10-17
+  proxyBaptisms: 2014-10-17
+  templePrep: 2014-10-17
+  endowed: 2014-10-17
+  sealed: 2014-10-17
+
+two:
+  worthinessInterview: 2014-10-17
+  priesthoodInterview: 2014-10-17
+  gospelPrinciples: 2014-10-17
+  reteachLessons: 2014-10-17
+  responsibility: 2014-10-17
+  attendingSacrament: 2014-10-17
+  familyGroupSheet: 2014-10-17
+  priesthood: 2014-10-17
+  proxyBaptisms: 2014-10-17
+  templePrep: 2014-10-17
+  endowed: 2014-10-17
+  sealed: 2014-10-17

@@ -10,4 +10,4 @@
     </form>
   </div>
   <br>
-  <%= render :partial => "families/list_families", :object => @families %>
+  <%= render :partial => "families/list_families", :locals => {tag: @tag, families: @families} %>

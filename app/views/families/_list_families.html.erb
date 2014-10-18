@@ -7,6 +7,9 @@
 <table id = 'filterable' class = 'sorttable resizable'>
   <thead>
     <tr align="left">
+      <% if tag == 'new' %>
+      <th>Progress Report</th>
+      <% end %>
       <th>Name**</th>
       <th class='sorttable_nosort'>Phone</th>
       <th class='sorttable_nosort'>Address</th>
@@ -23,9 +26,12 @@
     </tr>
   </thead>
   <tbody>
-    <% list_families.each do |family| %>
+    <% families.each do |family| %>
       <tr class="<%=cycle('list-line-odd','list-line-even')%>" 
         onClick = "window.location.href='<%= family_path(family) %>'" >
+        <% if tag == 'new' %>
+        <td><a href="/reports/progress/<%= family.id %>">Report</a></td>
+        <% end %>
         <td ><%=h family.name %>, <%=h family.head_of_house_hold %></td>
         <td ><%=h family.phone %></td>
         <td ><%=h family.address %></td>

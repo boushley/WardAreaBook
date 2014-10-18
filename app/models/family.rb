@@ -11,6 +11,7 @@ class Family < ActiveRecord::Base
                                  :conditions => "status = 'closed'",
                                  :order => 'updated_at DESC'
   has_one :teaching_record
+  has_one :progress_report
 
   acts_as_taggable
 

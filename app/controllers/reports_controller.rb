@@ -71,6 +71,21 @@ class ReportsController < ApplicationController
 
   def progressReport
     @family = Family.find(params[:id])
+    if @family.progress_report.nil?
+      @family.progress_report = ProgressReport.create
+    end
+    @report = @family.progress_report
+  end
+
+  def saveProgressReport
+    @family = Family.find(params[:id])
+    @report = @family.progress_report
+
+    if @report.update_attributes(params[:progress_report])
+      redirect_to '/reports/progress/' + @family.id.to_s
+    else
+      redirect_to '/reports/progress/' + @family.id.to_s
+    end
   end
 
   private

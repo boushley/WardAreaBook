@@ -6,6 +6,7 @@ class FamiliesController < ApplicationController
 
   @hasFullAccess = false
   @the_title = nil
+  @tag = nil
 
   # override the application accessLevel method
   # TODO refactor this method
@@ -234,11 +235,12 @@ class FamiliesController < ApplicationController
   TAGS = ['focus', 'new']
   def tag_families
     raise "Invalid Tag" unless TAGS.include? params[:tag]
-    @families = Family.tagged_with(params[:tag]).order(:name)
+    @tag = params[:tag]
+    @families = Family.tagged_with(@tag).order(:name)
 
-    if params[:tag] == 'focus'
+    if @tag == 'focus'
       @the_title = "Focus List"
-    elsif params[:tag] == 'new'
+    elsif @tag == 'new'
       @the_title = "New or Returning Member List"
     end
 

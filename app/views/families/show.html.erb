@@ -35,6 +35,7 @@
   <% end %>
   <% if @family.tag_list.include? "new" %>
     <%= form_tag family_path(@family) + '/remove_tag/new' do %><input type="submit" value="Remove from New or Returning"><% end %>
+    <a href="/reports/progress/<%= @family.id %>">Progress Report</a>
   <% else %>
     <%= form_tag family_path(@family) + '/add_tag/new' do %><input type="submit" value="Add to New or Returning"><% end %>
   <% end %>
