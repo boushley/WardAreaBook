@@ -73,5 +73,5 @@
 </p>
 <hr>
 <div id = show_stuff>
-  <%= render :partial => "families/list_families", :object => @families %>
+  <%= render :partial => "families/list_families", :locals => { tag: nil, families: @families} %>
 </div>

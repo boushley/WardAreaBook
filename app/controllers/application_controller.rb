@@ -58,6 +58,7 @@ class ApplicationController < ActionController::Base
     session[:user_name] = person.full_name
     session[:first_name] = person.name
     session[:user_id] = person.id
+    session[:family_id] = person.family_id
     refresh_session
 
 

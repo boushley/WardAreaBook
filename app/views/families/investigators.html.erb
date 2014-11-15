@@ -5,8 +5,7 @@
 </p>
 
 <div id = 'investigating-families'>
-  <%= render(:partial => 'list_families', :object => @families, 
-             :locals => {:nonMember => true}) %> 
+  <%= render(:partial => 'list_families', :locals => {families: @families, tag: nil, nonMember: true}) %> 
 </div>
 
 <br /> <br /> <br />

@@ -2,5 +2,5 @@
 
 <div id = 'dropped-families'>
   <h1>Dropped Families</h1>
-  <%= render(:partial => 'list_families', :object => @families, :locals => {:dropped => true}) %> 
+  <%= render(:partial => 'list_families', :locals => {tag: nil, families: @families, dropped: true}) %> 
 </div>

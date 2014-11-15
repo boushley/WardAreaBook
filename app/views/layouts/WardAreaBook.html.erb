@@ -35,6 +35,7 @@
       </ul>
 
       <ul>
+        <li><%= link_to 'My Records ', :controller => 'families', :action => 'show', :id => session[:family_id] %></li>
         <li><%= link_to 'My Families ', :controller => 'teaching_routes', :action => 'teacherList', :id => session[:user_id] %></li>
       </ul>
 
