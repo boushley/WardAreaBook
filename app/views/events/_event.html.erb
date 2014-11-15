@@ -3,14 +3,17 @@
 editable ||= true
 hasAccessToEdit =false
 isEditable = ""
+is_author= event.author == session[:user_id]
+is_subject = event.person_id == session[:user_id]
+is_bishopric = session[:access_level] >= 3
 
 # Can the user edit this action?
 
-if editable and (event.author == session[:user_id] or event.person_id == session[:user_id]) 
+if editable and (is_author or is_subject or is_bishopric)
   isEditable = "editable-action"
   hasAccessToEdit = true;
 end
-  
+
 #=================== Partial Content ============================
 %>
 <div id = "event_<%=event.id%>"> 
